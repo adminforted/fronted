@@ -16,6 +16,7 @@ const VerifyEmail = React.lazy(() => import('./views/pages/VerifyEmail/VerifyEma
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const UserManagement = React.lazy(() => import('./views/UserManagement/UserManagement'))
+const UsuariosInformes = React.lazy(() => import('./views/users/UsuarioInformes'))
 const Home = React.lazy(() => import('./views/home/Home'))
 const Estudiante = React.lazy(() => import('./views/estudiantes/Estudiantes'))
 const EstudiantesInformes = React.lazy(() => import('./views/estudiantes/EstudiantesInformes'))
@@ -111,6 +112,7 @@ const RouterContent = () => {
           <Route path="materias/informes" element={<ProtectedRoute> <MateriasInformes /> </ProtectedRoute>} />
 
           <Route path="usuarios" element={<ProtectedRoute> <UserManagement /> </ProtectedRoute>} />
+          <Route path="usuarios/informes" element={<ProtectedRoute> <UsuariosInformes /> </ProtectedRoute>} />
 
           {/* Ruta por defecto para cualquier otra URL no coincidente dentro del layout */}
           <Route path="*" element={<Page404 />} />

@@ -21,7 +21,7 @@ export default function UsuarioInformes() {
                         <CRow className="justify-content-between align-items-center " > {/* Fila en la grilla.*/}
                             <CCol xs={12} sm="auto">    {/* Columna dentro de fila. Ocupa 5 de 12 unidades disponibles. Hereda gutter de CRow*/}
                                 <h4 id="titulo" className="mb-0 ">
-                                    Informes de Cursos
+                                    Informes de Usuarios
                                 </h4>
                                 <div className="small text-body-secondary"> Reportes y listados</div>
                             </CCol>
