@@ -18,7 +18,7 @@ export default function EstudiantesInformes() {
                         <CRow className="justify-content-between align-items-center " > {/* Fila en la grilla.*/}
                             <CCol xs={12} sm="auto">    {/* Columna dentro de fila. Ocupa 5 de 12 unidades disponibles. Hereda gutter de CRow*/}
                                 <h4 id="titulo" className="mb-0 ">
-                                    Informes sobre Estudiantes
+                                    Informes Estudiantes
                                 </h4>
                                 <div className="small text-body-secondary"> Reportes y listados</div>
                             </CCol>
@@ -31,37 +31,6 @@ export default function EstudiantesInformes() {
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
 
                         {/* INFORMES */}
-                        <CCard className="mb-4 no-print shadow-sm">
-                            <CCardHeader className="fw-semibold bg-white">
-                                Informes predefinidos
-                            </CCardHeader>
-                            <CCardBody>
-                                <CRow className="g-4 align-items-end">
-
-                                    <CCol xl={3}>
-                                        <label className="form-label text-uppercase small fw-semibold text-secondary">
-                                            Tipo de informe
-                                        </label>
-                                      </CCol>
-
-                                    <CCol xs={12} className="pt-2">
-                                        <div className="form-check form-check-inline">
-                                            <input className="form-check-input" type="checkbox" defaultChecked />
-                                            <label className="form-check-label">Asistencias</label>
-                                        </div>
-                                        <div className="form-check form-check-inline">
-                                            <input className="form-check-input" type="checkbox" defaultChecked />
-                                            <label className="form-check-label">Calificaciones</label>
-                                        </div>
-                                        <div className="form-check form-check-inline">
-                                            <input className="form-check-input" type="checkbox" />
-                                            <label className="form-check-label">Observaciones</label>
-                                        </div>
-                                    </CCol>
-
-                                </CRow>
-                            </CCardBody>
-                        </CCard>
 
                         {/* CONFIGURACIÓN DEL INFORME */}
                         <CCard className="mb-4 no-print shadow-sm">
