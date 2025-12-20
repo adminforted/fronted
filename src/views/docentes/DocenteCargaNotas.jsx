@@ -38,24 +38,16 @@ export default function DocenteCargaNotas() {
                             </CCol>
                         </CRow>
                     </CCardHeader>
-                    {/* ----------  /HEAD --------------- */}
-
 
                     {/* ----------  BODY --------------- */}
                     <CCardBody className="px-4 pt-1 pb-2 border border-light">
-
                         <CargarNotaIndividual />
-
                     </CCardBody>
-                    {/* ----------  /BODY --------------- */}
-
 
                     {/* ----------  FOOTER --------------- */}
                     <CCardFooter
                         className="bg-white border-top px-3 py-1" >
-
                         FOOTER
-
                     </CCardFooter>
 
                 </CCard>
