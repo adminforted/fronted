@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from 'react'
+//  frontend_AcademiA\src\views\notas\CargaNotas.jsx
 
+import React, { useState, useEffect } from 'react'
 import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer, CFormInput, CFormLabel, } from '@coreui/react'
-import { cilPrint } from '@coreui/icons'
 
 import GenericTable from '../../components/usersTable/GenericTable.jsx'
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
+//   Para cargar la planilla modelo
+import ModeloPlanilla from './Modelo_Planilla.jsx'
+
 //  Importar hook para obtener datos de los estudiantes
-import { useStudentsData } from '../../hooks/useStudentsData.js'
+//  import { useStudentsData } from '../../hooks/useStudentsData.js'
+
+//  Importar hook para obtener notas de los estudiantes
+import { usePlanillaCalificaciones } from '../../hooks/useCalificaciones.js';
 
 // Importar configuración de columnas
-// import { getEstudiantesColumns } from '../../utils/columns'
 import { getTableColumns } from '../../utils/columns.js'
 
 // Estado inicial para filtros
 const initialFilters = []
+
 
 
 // Importar componentes reutilizables
@@ -30,6 +36,7 @@ import '../../css/PersonalStyles.css'
 
 export default function CargaNotaAlumno() {
 
+
     const [unitCharge, setUnitCharge] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -39,24 +46,32 @@ export default function CargaNotaAlumno() {
     });
 
     // Usamos el hook para traer datos y los desestructuramos
+    /*
     const {
         studentsData: tableData,
         setStudentsData: setTableData,
         loading
-    } = useStudentsData()
+    } = useStudentsData();
 
-    // Datos simulados basados en la imagen (PDF)
-    const alumnos = [
-        { id: 1, nombre: "BUTTA, Clemente Bautista", t1: 7, t2: 8, t3: 8, prom: 7.66, dic: "", feb: "", def: 7.66 },
-        { id: 2, nombre: "CASTRO, Catalina", t1: 9, t2: 9, t3: 9, prom: 9.00, dic: "", feb: "", def: 9.00 },
-        { id: 3, nombre: "DEMIRYI, Ulises Miguel", t1: 8, t2: 9, t3: 9, prom: 8.66, dic: "", feb: "", def: 8.66 },
-        { id: 4, nombre: "DIANA, Fiorella Itatí", t1: 9, t2: 9, t3: 10, prom: 9.33, dic: "", feb: "", def: 9.33 },
-        { id: 5, nombre: "DÍAZ, Emilia", t1: 9, t2: 9, t3: 10, prom: 9.33, dic: "", feb: "", def: 9.33 },
-        { id: 6, nombre: "DUMÉ BALBI, Benicio", t1: 9, t2: 9, t3: 9, prom: 9.00, dic: "", feb: "", def: 9.00 },
-        { id: 7, nombre: "FRAU MEICHTRY, Ana Paula", t1: 9, t2: 9, t3: 9, prom: 9.00, dic: "", feb: "", def: 9.00 },
-        { id: 8, nombre: "GALIZZI KOHAN, Amanda", t1: 9, t2: 10, t3: 10, prom: 9.66, dic: "", feb: "", def: 9.66 },
-        { id: 9, nombre: "GAMBARO, Marco", t1: 8, t2: 8, t3: 8, prom: 8.00, dic: "", feb: "", def: 8.00 },
-    ];
+    */
+
+    const [materiaId, setMateriaId] = useState('');
+    const [periodoId, setPeriodoId] = useState('1'); // o el ID del ciclo actual
+
+
+    const {
+        data: tableData,
+        loading,
+        error
+    } = usePlanillaCalificaciones(materiaId, periodoId);
+
+    console.log('materiaId:', materiaId);
+    console.log('periodoId:', periodoId);
+    console.log('tableData:', tableData);
+    console.log('loading:', loading);
+    console.log('error:', error);
+
+
     // Manejador genérico de cambios en el formulario
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -77,14 +92,15 @@ export default function CargaNotaAlumno() {
     // ==================== CONFIGURACIÓN ESPECÍFICA DE COLUMNAS PARA CARGA NOTAS ====================
 
     const cargaNotasColumnsConfig = [
-        { accessorKey: '', header: 'Nº' },
+        { id: 'index', header: 'Nº', cell: ({ row }) => row.index + 1 },
+
         {
             accessorKey: 'apellido_nombre',
-            header: 'Apellido y Nombre',
+            id: 'alumno',
+            header: 'Alumno/a',
             cell: ({ row }) => {
-                const apellido = row.original.apellido || '';
-                const nombre = row.original.nombre || '';
-                return `${apellido}, ${nombre}`.trim() || '-';  // Evita mostrar ", " si uno falta
+                const a = row.original.alumno;
+                return `${a.apellido.toUpperCase()}, ${a.nombre.toUpperCase()}`;
             },
         },
         { accessorKey: '', header: '1ºT' },
@@ -111,7 +127,7 @@ export default function CargaNotaAlumno() {
         data: tableData || [], // Por seguridad, por si los datos son nulos
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        // getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: setPagination,
         getSortedRowModel: getSortedRowModel(),
         onSortingChange: setSorting,
@@ -126,19 +142,10 @@ export default function CargaNotaAlumno() {
         },
     })
 
-
-
-
     return (
-
-
-
         <div>
 
-
             {/* ----------  BODY --------------- */}
-
-
             {/* CONFIGURACIÓN (Mantenida del estilo original para contexto) */}
             <CCard className="mb-4 no-print shadow-sm">
                 <CCardHeader className="fw-semibold bg-white">
@@ -153,16 +160,24 @@ export default function CargaNotaAlumno() {
                             </select>
                         </CCol>
                         <CCol md={3}>
-                            <label className="form-label text-uppercase small fw-semibold text-secondary">Asignatura</label>
-                            <select className="form-select">
-                                <option>TIC</option>
+                            <label className="form-label text-uppercase small fw-semibold text-secondary">Materia</label>
+                            <select className="form-select" onChange={(e) => setMateriaId(e.target.value)}>
+                                <option value="">Seleccione materia</option>
+                                <option value="2">TIC</option>
+                                <option value="1">Matemática</option>
                             </select>
                         </CCol>
+
+
+
                         <CCol md={3}>
                             <label className="form-label text-uppercase small fw-semibold text-secondary">Ciclo Lectivo</label>
-                            <select className="form-select">
-                                <option>2025</option>
+                            <select className="form-select" onChange={(e) => setPeriodoId(e.target.value)}>
+                                <option value="1">2025</option>
+                                <option value="2">2024</option>
                             </select>
+
+
                         </CCol>
                         <CCol md={3} className="d-flex align-items-end ">
                             <div className="form-check mb-0 text-nowrap">
@@ -195,6 +210,7 @@ export default function CargaNotaAlumno() {
                                 <select className="form-select">
                                     <option>1°T</option>
                                 </select>
+
                             </CCol>
                             <CCol md={4}>
                                 <CFormLabel htmlFor="nota">
@@ -275,55 +291,12 @@ export default function CargaNotaAlumno() {
                             </CRow>
 
                             {/* TABLA DE NOTAS */}
-                            <div className="table-responsive">
-                                <table className="table table-bordered table-sm align-middle text-center" style={{ fontSize: '0.9rem' }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: '#ffc107' }}> {/* Color Amarillo similar a la imagen */}
-                                            <th className="bg-warning text-dark" style={{ width: '40px' }}>Nº</th>
-                                            <th className="bg-warning text-dark text-start" style={{ width: '30%' }}>Alumno/a</th>
-                                            <th className="bg-warning text-dark">1º T</th>
-                                            <th className="bg-warning text-dark">2º T</th>
-                                            <th className="bg-warning text-dark">3º T</th>
-                                            <th className="bg-warning text-dark">Prom.</th>
-                                            <th className="bg-warning text-dark">DIC.</th>
-                                            <th className="bg-warning text-dark">FEB.</th>
-                                            <th className="bg-warning text-dark fw-bold" style={{ lineHeight: '1.1' }}>CALIF.<br />DEF.</th>
-                                            <th className="bg-warning text-dark">OBSERVACIONES</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {alumnos.map((alumno) => (
-                                            <tr key={alumno.id}>
-                                                <td>{alumno.id}</td>
-                                                <td className="text-start text-uppercase">{alumno.nombre}</td>
-                                                <td>{alumno.t1}</td>
-                                                <td>{alumno.t2}</td>
-                                                <td>{alumno.t3}</td>
-                                                <td className="bg-light fw-semibold">{alumno.prom}</td>
-                                                <td>{alumno.dic}</td>
-                                                <td>{alumno.feb}</td>
-                                                <td className="fw-bold">{alumno.def}</td>
-                                                <td className="bg-light"></td>
-                                            </tr>
-                                        ))}
-                                        {/* Filas vacías para completar estilo visual si fuera necesario */}
-                                        {[...Array(3)].map((_, i) => (
-                                            <tr key={`empty-${i}`}>
-                                                <td>{alumnos.length + 1 + i}</td>
-                                                <td className="text-start"></td>
-                                                <td></td><td></td><td></td>
-                                                <td className="bg-light"></td>
-                                                <td></td><td></td><td></td>
-                                                <td className="bg-light"></td>
-                                            </tr>
-                                        ))}
-
-                                    </tbody>
-                                </table>
-
+                            <table className="table table-bordered table-sm align-middle text-center" style={{ fontSize: '0.9rem' }}>
+                                {/*< ModeloPlanilla /> */}
                                 {/* Tabla de estudiantes */}
                                 <GenericTable table={table} />
-                            </div>
+                            </table>
+
 
                         </div>
                     </CCardBody>

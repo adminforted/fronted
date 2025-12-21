@@ -51,6 +51,11 @@ const initialFilters = [
 ];
 
 const Usuarios = () => {
+
+   // Usamos el hook para traer datos y los desestructuramos
+
+
+      
   const [tableData, setTableData] = useState([])    //  State para manejo de los datos de la tabla
   const [searchTerm, setSearchTerm] = useState(''); // Búsqueda dinámica. Estado para el término de búsqueda global
   const [visibleXL, setVisibleXL] = useState(false);
@@ -160,14 +165,11 @@ const Usuarios = () => {
   // La variable "table" (creada con useReactTable) contiene toda la lógica y los métodos para manejar la tabla, 
   // como paginación, filas, y renderizado.
 
-
   // Configuración de la tabla con TanStack
-
-
   // Se obtienen las columnas de la función 'getUsuariosColumns', importada de columns.js
-//  const columns = getUsuariosColumns(confirmDelete, handleClickEditar)
+  //  const columns = getUsuariosColumns(confirmDelete, handleClickEditar)
 
-// ==================== CREACIÓN DE COLUMNAS  ====================
+  // ==================== CREACIÓN DE COLUMNAS  ====================
 
   // Se usa la función genérica: le pasamos config + callbacks
   const columns = getTableColumns(
@@ -202,6 +204,9 @@ const Usuarios = () => {
 
 
   // Funciones para usuarios de sistema (API)
+
+
+
 
   // Guardar usuario (crear o actualizar)
   const handleSaveSystemUser = async () => {
@@ -259,11 +264,6 @@ const Usuarios = () => {
     setSystemEditId(null);
   };
 
-  {/*
-  const handleExportClick = () => {
-    generatePDF(table, 'compact', true);
-  }
-*/}
 
 
   return (
@@ -296,37 +296,34 @@ const Usuarios = () => {
 
               >
                 <CIcon icon={cilPlus} className="me-1" />
-                Nuevo
+                Nuevo Usuario
               </CButton>
             </CCol>
           </CRow>
         </CCardHeader>
         {/* ----------  /HEAD --------------- */}
 
-        {/* Filtros avanzados y búsqueda global 
-          Se pasan columnFilters y setColumnFilters directamente al componente AdvancedFilters*/}
-        <AdvancedFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilters}
-        />
 
-        <div></div>
 
         <TableActions table={table} />
-
-
         {/* ----------  BODY --------------- */}
         <CCardBody className="px-4 pt-1 pb-2 border border-light">
+
+          {/* Filtros avanzados y búsqueda global 
+          Se pasan columnFilters y setColumnFilters directamente al componente AdvancedFilters*/}
+          <AdvancedFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            columnFilters={columnFilters}
+            setColumnFilters={setColumnFilters}
+          />
+
 
           {/*  ---------------  Tabla  ------------- */}
           {/* Se utiliza el componente GenericTable importado de GenericTable.jsx, pasando la instancia de table como prop.*/}
           <GenericTable table={table} />
 
-
         </CCardBody>
-        {/* ----------  /BODY --------------- */}
 
         {/* ----------  FOOTER --------------- */}
         <CCardFooter
@@ -348,16 +345,6 @@ const Usuarios = () => {
 
       </CCard>
 
-
-      {/* Modal de confirmación 
-      <ModalConfirmDel
-        visible={deleteModalVisible}
-        onClose={() => setDeleteModalVisible(false)}
-        onConfirm={handleDelete}
-        userId={userToDelete}
-      />
-
-*/}
 
 
       {/* Modal Editar */}

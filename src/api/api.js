@@ -72,7 +72,15 @@ export default api;
 // ==================== NOTAS (tbl_notas) ====================
 
 //  ====================  Crear notas  ====================
-export const createNota = (nota) => api.post('/notas/', nota);
+export const createNota = (nota) => api.post('/api/notas/', nota);
 
 //  ====================  Obtener notas  ====================
-export const getNotas = (params = {}) => api.get('/notas/', { params });
+export const getNotas = (params = {}) => api.get('/api/notas/', { params });
+
+
+
+// ==================== PLANILLA DE CALIFICACIONES ====================
+export const getPlanillaCalificaciones = (materiaId, periodoId) => 
+  api.get('/api/notas/planilla', { 
+    params: { materia_id: materiaId, periodo_id: periodoId } 
+  });

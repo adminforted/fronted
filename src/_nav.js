@@ -10,6 +10,7 @@ import { ROL_ADMIN, ROL_ALUMNO, ROL_DOCENTE } from '../src/constants/Roles';
 // 1. DEFINICIÓN DEL MENÚ CON PERMISOS
 // --------------------------------------------------------------------------------
 const fullNavigation = [
+    
     {
         component: CNavTitle,
         name: 'AcademIA',
@@ -161,6 +162,11 @@ const getNavItems = () => {
     //  Extrae solo un rol, como un objeto único, no como un array.
 
     let userRoles = [];
+
+
+    console.log('React version:', React.version);
+    console.log('React instance:', React);
+
     
     // --- LÓGICA DE EXTRACCIÓN ROBUSTA DE ROLES ---
 
