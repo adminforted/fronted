@@ -54,8 +54,7 @@ const Usuarios = () => {
 
    // Usamos el hook para traer datos y los desestructuramos
 
-
-      
+   
   const [tableData, setTableData] = useState([])    //  State para manejo de los datos de la tabla
   const [searchTerm, setSearchTerm] = useState(''); // Búsqueda dinámica. Estado para el término de búsqueda global
   const [visibleXL, setVisibleXL] = useState(false);
