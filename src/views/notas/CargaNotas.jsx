@@ -154,6 +154,13 @@ export default function CargaNotaAlumno() {
                 <CCardBody>
                     <CRow className="g-3">
                         <CCol md={3}>
+                            <label className="form-label text-uppercase small fw-semibold text-secondary">Ciclo Lectivo</label>
+                            <select className="form-select" onChange={(e) => setPeriodoId(e.target.value)}>
+                                <option value="1">2025</option>
+                                <option value="2">2024</option>
+                            </select>
+                        </CCol>
+                        <CCol md={3}>
                             <label className="form-label text-uppercase small fw-semibold text-secondary">Curso</label>
                             <select className="form-select">
                                 <option>5° A</option>
@@ -170,15 +177,6 @@ export default function CargaNotaAlumno() {
 
 
 
-                        <CCol md={3}>
-                            <label className="form-label text-uppercase small fw-semibold text-secondary">Ciclo Lectivo</label>
-                            <select className="form-select" onChange={(e) => setPeriodoId(e.target.value)}>
-                                <option value="1">2025</option>
-                                <option value="2">2024</option>
-                            </select>
-
-
-                        </CCol>
                         <CCol md={3} className="d-flex align-items-end ">
                             <div className="form-check mb-0 text-nowrap">
                                 <input
