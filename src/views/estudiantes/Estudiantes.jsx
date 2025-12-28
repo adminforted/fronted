@@ -103,9 +103,6 @@ export default function Estudiante() {
         }
     }
 
-
-
-
     const estudiantesColumnsConfig = [
         { accessorKey: 'nombre', header: 'Nombre' },
         { accessorKey: 'apellido', header: 'Apellido' },

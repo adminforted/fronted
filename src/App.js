@@ -29,6 +29,7 @@ const MateriasInformes = React.lazy(() => import('./views/materias/MateriasInfor
 const Docentes = React.lazy(() => import('./views/docentes/Docentes'))
 const DocenteInformes = React.lazy(() => import('./views/docentes/DocenteInformes'))
 const DocenteCargaNotas = React.lazy(() => import('./views/docentes/DocenteCargaNotas'))
+const Personal = React.lazy(() => import('./views/personal/Personal'))
 
 //  Usar React.lazy permite cargar el código de las páginas sólo cuando se vsite por el usuario. Mejora el tiempo de carga inicial de la aplicación.
 
@@ -94,6 +95,7 @@ const RouterContent = () => {
           <Route path="cursos/informes" element={<ProtectedRoute> <CursoInformes /> </ProtectedRoute>} />
           <Route path="materias" element={<ProtectedRoute> <Materias /> </ProtectedRoute>} />
           <Route path="materias/informes" element={<ProtectedRoute> <MateriasInformes /> </ProtectedRoute>} />
+          <Route path="personal" element={<ProtectedRoute> <Personal /> </ProtectedRoute>} />
 
           <Route
             path="usuarios" 

@@ -1,8 +1,103 @@
-import React, { useState, useEffect } from 'react'
+//  frontend_AcademiA\src\views\cursos\Curso.jsx
 
-import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer} from '@coreui/react'
+import React, { useState, useEffect, } from 'react'
+import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CContainer } from '@coreui/react'
+import { cilPlus } from '@coreui/icons'
+import { CIcon } from '@coreui/icons-react'
+import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
+
+// Importar componentes reutilizables
+import GenericTable from '../../components/usersTable/GenericTable.jsx'
+import TablePagination from '../../components/tablePagination/TablePagination.jsx'
+import AdvancedFilters from '../../components/advancedFilters/AdvancedFilters.jsx'
+import TableActions from '../../components/tableActions/TableActions.jsx'
+import ModalConfirmDel from '../../modals/ModalConfirmDel.jsx'
+import ModalNewEdit from '../../modals/ModalNewEdit.jsx'
+import GlobalSearch from '../../components/globalSearch/GlobalSearch.jsx'
+
+// Importar funciones API para Cursoss
+import apiCursos from '../../api/apiCursos.jsx'
+
+//  Importar hook para obtener datos de los cursos
+import { useCursosData } from '../../hooks/useCursosData.js'
+
+// Importar configuración de columnas
+import { getTableColumns } from '../../utils/columns.js'
+
+// Estado inicial para filtros
+const initialFilters = []
 
 export default function Curso() {
+
+    // Traemos los datos de los cursos mediante el hook y los desestructuramos
+    const {
+        cursosData: tableData,
+        setCursosData: setTableData,
+        loading
+    } = useCursosData()
+
+
+    // ---------- Estados principales ----------
+    const [searchTerm, setSearchTerm] = useState('') // Búsqueda global
+    const [columnFilters, setColumnFilters] = useState(initialFilters) // Filtros por columna
+    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 }) // Paginación
+    const [sorting, setSorting] = useState([]) // Ordenamiento
+
+    // ---------- Estados para modales ----------
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false) // Modal de confirmación de eliminación
+    const [cursoToDelete, setCursoToDelete] = useState(null) // ID del curso a eliminar
+    const [editModalVisible, setEditModalVisible] = useState(false) // Modal de edición/creación
+    const [cursoToEdit, setCursoToEdit] = useState(null) // Datos del curso a editar
+
+
+
+    // ---------- Abrir modal de confirmación de eliminación ----------
+    const confirmDelete = (id) => {
+        setCursoToDelete(id)
+        setDeleteModalVisible(true)
+    }
+
+    // ---------- Abrir modal de edición ----------
+    const handleClickEditar = (curso) => {
+        setCursoToEdit(cursos)
+        setEditModalVisible(true)
+    }
+
+    const cursoColumnsConfig = [
+        { accessorKey: 'curso', header: 'Curso' },
+        { accessorKey: 'apellido', header: 'Ciclo lectivo' },
+        { accessorKey: 'email', header: 'Plan' },
+    ]
+
+    // ==================== GENERACIÓN DE COLUMNAS FINALES CON LA FUNCIÓN REUTILIZABLE ====================
+
+    const columns = getTableColumns(
+        cursoColumnsConfig,
+        confirmDelete,      // para el botón borrar
+        handleClickEditar   // para el botón editar
+    )
+
+
+    // ---------- Configuración de TanStack Table ----------
+    const table = useReactTable({
+        data: tableData || [], // Por seguridad, por si los datos son nulos
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        onPaginationChange: setPagination,
+        getSortedRowModel: getSortedRowModel(),
+        onSortingChange: setSorting,
+        getFilteredRowModel: getFilteredRowModel(),
+        onGlobalFilterChange: setSearchTerm,
+        onColumnFiltersChange: setColumnFilters,
+        state: {
+            pagination,
+            sorting,
+            globalFilter: searchTerm,
+            columnFilters,
+        },
+    })
+
 
     return (
 
@@ -28,19 +123,39 @@ export default function Curso() {
 
 
                     {/* ----------  BODY --------------- */}
-                    <CCardBody className="px-4 pt-1 pb-2 border border-light">
-                        
-                        BODY
-                    
+                    <CCardBody className="px-34 pt-1 pb-2 border border-light">
+                        < div className="d-flex justify-content-between align-items-center w-100 pe-2">
+
+                            {/* ----------  BÚSQUEDA GLOBAL ---------- */}
+                            <GlobalSearch
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                            />
+
+                            {/* ---------- ACCIONES DE TABLA (Exportar, etc.) ---------- */}
+                            <TableActions table={table} />
+                        </div>
+                        {/* Tabla de Cursos */}
+                        <GenericTable table={table} />
+
                     </CCardBody>
+
                     {/* ----------  /BODY --------------- */}
 
 
                     {/* ----------  FOOTER --------------- */}
                     <CCardFooter
-                        className="bg-white border-top px-3 py-1" >
-                        
-                        FOOTER
+                        className="bg-white border-top px-3 py-1"
+
+                        style={{
+                            position: 'sticky',
+                            bottom: 0,
+                            zIndex: 1,
+                            boxShadow: '0 -2px 5px rgba(0,0,0,0.1)',
+                        }}
+                    >
+
+                        <TablePagination table={table} />
 
                     </CCardFooter>
 
@@ -50,7 +165,7 @@ export default function Curso() {
 
             </CContainer >
 
-        </div>
+        </div >
 
     )
 

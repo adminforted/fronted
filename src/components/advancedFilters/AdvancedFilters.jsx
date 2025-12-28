@@ -62,7 +62,7 @@ const AdvancedFilters = ({ searchTerm, setSearchTerm, columnFilters, setColumnFi
               <span className="af-arrow-custom"></span>
             </div>
 
-            {/* DERECHA: Buscador Global (se mantiene igual) */}
+            {/* DERECHA: Buscador Global */}
             <CInputGroup size="sm" style={{ maxWidth: '240px' }} onClick={(e) => e.stopPropagation()}>
               <CInputGroupText className="af-label border rounded-start">
                 Buscar

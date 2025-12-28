@@ -45,16 +45,6 @@ export default function CargaNotaAlumno() {
         tipo: ''
     });
 
-    // Usamos el hook para traer datos y los desestructuramos
-    /*
-    const {
-        studentsData: tableData,
-        setStudentsData: setTableData,
-        loading
-    } = useStudentsData();
-
-    */
-
     // ---------- Estados para Ciclos ----------
     const [ciclos, setCiclos] = useState([]);   //  Guardamos los datos obtenidos de la api ciclos
     const [selectedCicloId, setSelectedCicloId] = useState(""); // Guardamos el ciclo seleccionado
@@ -158,7 +148,7 @@ export default function CargaNotaAlumno() {
             }
         };
         cargarMaterias();
-    }, [selectedCursoId]); // <--- La "llave" que dispara el efecto
+    }, [selectedCursoId]);
 
 
 
@@ -217,7 +207,6 @@ export default function CargaNotaAlumno() {
 
 
     // ==================== DATOS DERIVADOS PARA MOSTRAR E ====================
-    // Calculamos una sola vez los objetos completos seleccionados
     const cicloSeleccionado = ciclos.find(c => c.id_ciclo_lectivo === parseInt(selectedCicloId))
     const cursoSeleccionado = cursos.find(c => c.id_curso === parseInt(selectedCursoId))
     const materiaSeleccionada = materias.find(m => m.id_materia === parseInt(materiaId))
@@ -228,7 +217,7 @@ export default function CargaNotaAlumno() {
         curso: cursoSeleccionado?.curso || 'Sin seleccionar',
         turno: cursoSeleccionado?.turno || 'Sin seleccionar',
         materia: materiaSeleccionada?.nombre_rel?.nombre_materia || 'Sin seleccionar',
-        // Puedes agregar más datos aquí según necesites
+        // Se pueden agregar más datos según se necesite
         // docente: materiaSeleccionada?.docente || 'Sin asignar',
         fecha: new Date().toLocaleDateString()
     }
@@ -239,7 +228,6 @@ export default function CargaNotaAlumno() {
         <div>
 
             {/* ----------  BODY --------------- */}
-            {/* CONFIGURACIÓN (Mantenida del estilo original para contexto) */}
             <CCard className="mb-4 no-print shadow-sm">
                 <CCardHeader className="fw-semibold bg-white">
                     Filtros de Selección
@@ -281,7 +269,8 @@ export default function CargaNotaAlumno() {
                             >
                                 {/* Opción por defecto dinámica */}
                                 <option value="">
-                                    {cursos.length > 0 ? "Seleccionar Curso" : "Primero elija un Ciclo"}
+                                    {cursos.length > 0 ? (
+                                        "Seleccione el Curso") : "Primero elija un Ciclo"}
                                 </option>
 
                                 {/* Mapeo de los cursos traídos del endpoint */}
@@ -376,7 +365,6 @@ export default function CargaNotaAlumno() {
                 </CCardBody>
             </CCard>
 
-            {/* VISTA PREVIA DEL INFORME (REPLICA DE LA IMAGEN) */}
             {!unitCharge && (
                 <CCard className="shadow-sm">
                     <CCardHeader className="fw-semibold bg-white d-flex justify-content-between">
@@ -398,14 +386,14 @@ export default function CargaNotaAlumno() {
                                     </div>
                                 </CCol>
                                 <CCol xs={10}>
-                                    <h5 className="text-center fw-bold mb-3">PLANILLAS DE CALIFICACIONES - CL: 2025</h5>
+                                    <h5 className="text-center fw-bold mb-3">PLANILLAS DE CALIFICACIONES - CL: {datosPlanilla.ciclo}</h5>
 
                                     {/* Grilla de Datos del Encabezado */}
                                     <div className="border">
                                         <CRow className="g-0 border-bottom">
                                             <CCol xs={6} className="p-1 border-end d-flex">
                                                 <span className="fw-bold me-2">CURSO Y DIV.:</span>
-                                                <span>5A</span>
+                                                <span>{datosPlanilla.curso}</span>
                                             </CCol>
                                             <CCol xs={6} className="p-1 d-flex">
                                                 <span className="fw-bold me-2">Turno</span>
