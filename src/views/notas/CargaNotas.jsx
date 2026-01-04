@@ -6,6 +6,14 @@ import { CButton, CCard, CCardHeader, CCardBody, CCardFooter, CCol, CRow, CConta
 import GenericTable from '../../components/usersTable/GenericTable.jsx'
 import { useReactTable, getCoreRowModel, getPaginationRowModel, getSortedRowModel, getFilteredRowModel } from '@tanstack/react-table'
 
+
+//  Importamos upsertNota
+import { upsertNota, } from '../../api/api';
+
+// Importar el hook para acceder a los datos de la sesión almacenados en AuthProvider
+import { useAuth } from '../../context/AuthContext.js';
+
+
 //   Para cargar la planilla modelo
 import ModeloPlanilla from './Modelo_Planilla.jsx'
 
@@ -15,11 +23,20 @@ import { usePlanillaCalificaciones } from '../../hooks/useCalificaciones.js';
 // Importar configuración de columnas
 import { getTableColumns } from '../../utils/columns.js'
 
+//  Importamos contexto para las celdas de la tabla
+import { EditableCellProvider } from '../../context/editableCellContext/EditableCellContext.jsx';
+
+
 //  Importamos el servicio apiMaterias que contiene las funciones getCiclosAll y getMateriasCurso
 import apiMaterias, { getCiclosAll, getMateriasCurso } from '../../api/apiMaterias.jsx'
 
 //  Importamos el servicio apiCursos
 import apiCursos, { getCursosAll, getCursosCiclo } from '../../api/apiCursos.jsx'
+
+
+//  Importamos el componente para editar una celda de la tabla Notas
+import CeldaEditable from '../../components/notas/CeldaEditable.jsx'
+
 
 
 // Estado inicial para filtros
@@ -36,9 +53,14 @@ import '../../css/PersonalStyles.css'
 
 export default function CargaNotaAlumno() {
 
+    const { sessionData, loadingSessionData } = useAuth();
+    if (loadingSessionData) {
+        return null; // o spinner
+    }
+
+
 
     const [unitCharge, setUnitCharge] = useState(false);
-
     const [formData, setFormData] = useState({
         nota: 8.5, // Valor inicial
         alumno: '',
@@ -148,9 +170,46 @@ export default function CargaNotaAlumno() {
     }, [selectedCursoId]);
 
 
+    // ==================== FUNCIÓN PARA GUARDAR NOTA (UPSERT) ====================
+    const handleGuardarNota = async (alumnoId, tipoNotaId, nuevoValor) => {
+        // 1. Preparamos el objeto con los datos
+        const payload = {
+            id_alumno: alumnoId,
+            id_materia: parseInt(materiaId), // Viene del estado del selector de arriba
+            id_ciclo_lectivo: parseInt(selectedCicloId), // Contexto del Ciclo
+            id_curso: parseInt(selectedCursoId),    // Contexto del Curso
+            id_tipo_nota: tipoNotaId,
+            valor: nuevoValor === "" ? null : parseFloat(nuevoValor),
+            id_entidad_carga: sessionData?.user?.id_entidad,
+            id_periodo: null // Si es opcional
+        };
+
+        console.log("%c Enviar al Backend:", "color: #007bff; font-weight: bold", payload);
+
+        try {
+            //  Llamada  a la API:
+            const response = await upsertNota(payload);
+            console.log("%c✅ ¡Guardado exitoso!", "color: #28a745; font-weight: bold", response);
+
+            // IMPORTANTE: Retornar la respuesta para que CeldaEditable sepa que terminó
+            return response;
+
+        } catch (error) {
+            console.error("Error al guardar:", error);
+            alert("No se pudo guardar la nota. Verifique su conexión.");
+            // Acá se podría recargar los datos originales para "limpiar" el error
+            // IMPORTANTE: Re-lanzar el error para que CeldaEditable NO navegue
+            throw error;
+
+        }
+    };
+
+
 
     // ==================== CONFIGURACIÓN DINÁMICA DE COLUMNAS PARA CARGA NOTAS ====================
     const columns = useMemo(() => {
+        if (!tableData?.columnas) return [];
+
         // Columnas Base (Nº y Nombre)
         const baseColumns = [
             { id: 'index', header: 'Nº', cell: ({ row }) => row.index + 1 },
@@ -158,7 +217,8 @@ export default function CargaNotaAlumno() {
                 accessorKey: 'nombre_completo',
                 id: 'alumno',
                 header: 'Alumno/a',
-                cell: ({ getValue }) => getValue()?.toUpperCase(),
+                //  cell: ({ getValue }) => getValue()?.toUpperCase(),  //  ver si queda mejor el de abajo. Sino, cambiarlo
+                cell: ({ getValue }) => <span className="text-nowrap">{getValue()?.toUpperCase()}</span>,
             },
         ];
 
@@ -166,21 +226,49 @@ export default function CargaNotaAlumno() {
         // Columnas Dinámicas de Notas (vienen del endpoint)
         const dynamicNotesColumns = (tableData?.columnas || [])
             .filter(col => col.id_tipo_nota !== 7) // Excluir Calif. Definitiva
-            .map(col => ({
-                id: `nota_${col.id_tipo_nota}`,
-                header: col.label,
-                accessorKey: `calificaciones.${col.id_tipo_nota}`,
-                cell: ({ row }) => {
-                    // Acceder directamente al valor desde row.original
-                    const val = row.original.calificaciones?.[String(col.id_tipo_nota)];
+            .map(col => {
+                // Supongamos que el backend nos envía 'editable: false' en el JSON de columnas
+                const esEditable = col.editable !== false;
 
-                    if (val === null || val === undefined || val === "") {
-                        return <span className="text-muted opacity-50">-</span>;
+                return {
+                    id: `nota_${col.id_tipo_nota}`,
+                    header: col.label,
+                    accessorKey: `calificaciones.${col.id_tipo_nota}`,
+                    cell: ({ row, column, table }) => {
+
+                        // Acceder directamente al valor desde row.original
+                        const val = row.original.calificaciones?.[String(col.id_tipo_nota)];
+
+                        // Si no es editable, renderizamos texto plano con un estilo gris
+                        if (!esEditable) {
+                            if (val === null || val === undefined || val === "") {
+                                return <span className="text-muted opacity-50">-</span>;
+                            }
+                            return <span className="fw-semibold text-dark">{val}</span>;
+                        }
+
+                        // Si es editable, usamos nuestro nuevo componente (que crearemos a continuación)
+                        return (
+                            <CeldaEditable
+                                valorInicial={val}
+                                editable={esEditable} // Pasamos la prop de control
+                                rowIndex={row.index}
+                                columnId={column.id}
+                                table={table}
+                                alGuardar={(nuevoValor) => {
+                                    // Llamamos a la función global pasando los IDs correspondientes
+                                    return handleGuardarNota(
+                                        row.original.id_alumno,
+                                        col.id_tipo_nota,
+                                        nuevoValor
+                                    );
+                                }
+                                }
+                            />
+                        );
                     }
-                    return <span className="fw-semibold text-dark">{val}</span>;
-                }
-            }));
-
+                };
+            });
 
         // Columnas de Resultados (Promedio y Definitiva)
         const resultColumns = [
@@ -202,12 +290,12 @@ export default function CargaNotaAlumno() {
 
         return getTableColumns(
             finalConfig,
-
             () => { },
             null,
             { showSelection: false, showActions: false }
         );
-    }, [tableData?.columnas]); // Solo se recalcula si cambian las columnas del backend
+    }, [tableData]); // Se recalcula si cambian los datos o las columnas
+
 
     // ---------- Configuración de TanStack Table ----------
     const table = useReactTable({
@@ -451,9 +539,11 @@ export default function CargaNotaAlumno() {
 
                             {/* TABLA DE NOTAS */}
                             <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                                {/*< ModeloPlanilla /> */}
-                                {/* Tabla de estudiantes */}
-                                <GenericTable table={table} />
+                                {/* Tabla de estudiantes. Lo envolvemos en el contexto, 
+                                para manejar el foco de las celdas */}
+                                <EditableCellProvider>
+                                    <GenericTable table={table} />
+                                </EditableCellProvider>
                             </div>
                         </div>
 

@@ -7,8 +7,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 // 1. Crea el Contexto
 const AuthContext = createContext(null);
 
+
+
 // 2. Definición del Proveedor
 export const AuthProvider = ({ children }) => {
+    // Flag para saber si está cargando
+  const [loadingSessionData, setLoadingSessionData] = useState(true);
+
   const [sessionData, setSessionData] = useState({
     isAuthenticated: false,
     user: null,
@@ -47,6 +52,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
       }
     }
+
+    setLoadingSessionData(false);  // Ya cargó
+
   }, []); // Se ejecuta solo al montar
 
   // 4. Función de Logout Centralizada
@@ -57,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ sessionData, logout }}>
+    <AuthContext.Provider value={{ sessionData, loadingSessionData, logout }}>
       {children}
     </AuthContext.Provider>
   );

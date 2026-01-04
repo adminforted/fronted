@@ -1,5 +1,5 @@
 //  src\api\api.js
- 
+
 import axios from 'axios';
 
 const api = axios.create({
@@ -8,16 +8,30 @@ const api = axios.create({
 });
 
 // Interceptor para agregar el token a todas las solicitudes, excepto /api/login
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token'); // Clave usada en Login.js
-  if (token && !config.url.includes('/api/login')) {    // OBS: No agrega token si la URL es /api/login
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('Token incluido en la solicitud:', token); // Log para depuración
-  } else {
-    console.log('No se encontró token en localStorage');
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); // Clave usada en Login.js
+
+    // Usamos config?.url para evitar errores si la URL no está definida por un instante
+    // Verificamos que no sea la ruta de login
+    if (token && config?.url && !config.url.includes('/api/login')) {
+
+      // Aseguramos de que config.headers exista para no romper la app
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+
+      console.log('✓ Token incluido en la solicitud');
+    } else {
+      console.log('ℹ️ Solicitud sin token (Login o falta de credenciales)');
+    }
+
+    return config;
+  },
+  (error) => {
+    // Es vital manejar el error del interceptor también
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 // ==================== USUARIOS DEL SISTEMA ====================
 export const getUsers = () => api.get('/api/users');     // Lista todos los usuarios
@@ -77,14 +91,17 @@ export const createNota = (nota) => api.post('/api/notas/', nota);
 //  ====================  Obtener notas  ====================
 export const getNotas = (params = {}) => api.get('/api/notas/', { params });
 
-
-
 // ==================== PLANILLA DE CALIFICACIONES ====================
-export const getPlanillaActa = (cicloId, cursoId, materiaId) => 
-  api.get('/api/notas/planilla-acta', { 
-    params: { 
-        ciclo_id: cicloId, 
-        curso_id: cursoId, 
-        materia_id: materiaId 
-    } 
+export const getPlanillaActa = (cicloId, cursoId, materiaId) =>
+  api.get('/api/notas/planilla-acta', {
+    params: {
+      ciclo_id: cicloId,
+      curso_id: cursoId,
+      materia_id: materiaId
+    }
   });
+
+//  ====================  Para upsert de notas (POST) ====================
+export const upsertNota = (payload) => {
+  return api.post('/api/notas/upsert', payload);
+};
